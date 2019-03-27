@@ -8,28 +8,32 @@ public class GameManager : MonoBehaviour
     public Ball ballPrefab;
     public GameObject selectedPrefab;
 
-
+    private Ball[,] balls;
     private bool isBlackTurn = true;
+    private int leftMove = 3;
+
     private Vector3Int clicked = new Vector3Int(0, 0, -1);
     private GameObject selected;
 
     void Awake()
     {
+        balls = new Ball[10, 10];
+
         var whiteBalls = new Vector3Int[] {
-            new Vector3Int(-3, 1, 0),
-            new Vector3Int(-2, 1, 0),
-            new Vector3Int(-2, 0, 0),
-            new Vector3Int(-1, 1, 0),
-            new Vector3Int(-1, 0, 0),
             new Vector3Int(0, 1, 0),
-            new Vector3Int(0, 0, 0),
             new Vector3Int(1, 1, 0),
             new Vector3Int(1, 0, 0),
             new Vector3Int(2, 1, 0),
             new Vector3Int(2, 0, 0),
-            new Vector3Int(-1, 2, 0),
-            new Vector3Int(0, 2, 0),
-            new Vector3Int(1, 2, 0),
+            new Vector3Int(3, 1, 0),
+            new Vector3Int(3, 0, 0),
+            new Vector3Int(4, 1, 0),
+            new Vector3Int(4, 0, 0),
+            new Vector3Int(5, 1, 0),
+            new Vector3Int(5, 0, 0),
+            new Vector3Int(2, 2, 0),
+            new Vector3Int(3, 2, 0),
+            new Vector3Int(4, 2, 0),
         };
 
         foreach (Vector3Int pos in whiteBalls)
@@ -39,7 +43,6 @@ public class GameManager : MonoBehaviour
             blackPos.y = 8 - blackPos.y;
             RenderBall(blackPos, true);
         }
-
     }
 
     private void RenderBall(Vector3Int pos, bool black)
@@ -52,6 +55,7 @@ public class GameManager : MonoBehaviour
         {
             ball.GetComponent<MeshRenderer>().material.color = Color.black;
         }
+        balls[pos.x, pos.y] = ball;
     }
 
 
@@ -86,6 +90,13 @@ public class GameManager : MonoBehaviour
 
         if (clicked.z == -1)
         {
+            var ball = balls[cell.x, cell.y];
+            var isBlack = ball.GetComponent<MeshRenderer>().material.color == Color.black;
+            if (ball == null || isBlack != isBlackTurn)
+            {
+                return;
+            }
+
             clicked = cell;
             selected = Instantiate(selectedPrefab);
             var pos = grid.CellToLocal(cell);
