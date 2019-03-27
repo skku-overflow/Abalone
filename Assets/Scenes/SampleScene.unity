@@ -309,6 +309,8 @@ MonoBehaviour:
   grid: {fileID: 1839055717}
   ballPrefab: {fileID: 5426652743834772930, guid: 3dfe5343e501d413d99e4d2e8be69d0d,
     type: 3}
+  selectedPrefab: {fileID: 5684935452492711118, guid: 6225c4303f9ac4950bdfe74b3622dc46,
+    type: 3}
 --- !u!1 &1832875651
 GameObject:
   m_ObjectHideFlags: 0
