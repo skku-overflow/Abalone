@@ -30,10 +30,22 @@ public class GameManager : MonoBehaviour
 
         foreach (Vector3Int pos in whiteBalls)
         {
-            var loc = grid.CellToLocal(pos);
-            var ball = Instantiate<Ball>(ballPrefab);
-            ball.transform.SetParent(grid.transform);
-            ball.transform.localPosition = loc;
+            RenderBall(pos, false);
+            var blackPos = pos;
+            blackPos.y = 8 - blackPos.y;
+            RenderBall(blackPos, true);
+        }
+
+    }
+    private void RenderBall(Vector3Int pos, bool black)
+    {
+        var loc = grid.CellToLocal(pos);
+        var ball = Instantiate<Ball>(ballPrefab);
+        ball.transform.SetParent(grid.transform);
+        ball.transform.localPosition = loc;
+        if (black)
+        {
+            ball.GetComponent<MeshRenderer>().material.color = Color.black;
         }
 
     }
