@@ -19,6 +19,7 @@ public class GameManager : MonoBehaviour
     {
         balls = new Ball[10, 10];
 
+        // 흰 공 좌표. 
         var whiteBalls = new Vector3Int[] {
             new Vector3Int(0, 1, 0),
             new Vector3Int(1, 1, 0),
@@ -45,11 +46,19 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// 공을 생성합니다
+    /// </summary>
+    /// <param name="pos">Hex 좌표</param>
+    /// <param name="black">검은 공인지 여부</param>
     private void RenderBall(Vector3Int pos, bool black)
     {
-        var loc = grid.CellToLocal(pos);
         var ball = Instantiate<Ball>(ballPrefab);
+        // 공을 grid의 child로 만듦
         ball.transform.SetParent(grid.transform);
+
+        // 공의 position
+        var loc = grid.CellToLocal(pos);
         ball.transform.localPosition = loc;
         if (black)
         {
@@ -65,6 +74,7 @@ public class GameManager : MonoBehaviour
     {
         if (selected != null)
         {
+            // 선택한 공이 있으면 회전 애니메이션 표시
             selected.transform.Rotate(new Vector3(0, 0, 1));
         }
 
@@ -74,6 +84,9 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// 마우스 클릭을 처리합니다.
+    /// </summary>
     private void HandleClick()
     {
         if (selected != null)
@@ -86,22 +99,27 @@ public class GameManager : MonoBehaviour
         RaycastHit hit;
         if (!Physics.Raycast(ray, out hit)) return;
 
+        // 클릭한 좌표 -> Hex 좌표
         var cell = grid.WorldToCell(hit.transform.position);
 
+        // 만약 현재 클릭된 공이 없다면
         if (clicked.z == -1)
         {
             var ball = balls[cell.x, cell.y];
             var isBlack = ball.GetComponent<MeshRenderer>().material.color == Color.black;
+            // 빈 공간 선택 금지 및 턴이 아닌 경우 클릭 금지
             if (ball == null || isBlack != isBlackTurn)
             {
                 return;
             }
 
+            // 공 선택
             clicked = cell;
             selected = Instantiate(selectedPrefab);
-            var pos = grid.CellToLocal(cell);
-
             selected.transform.SetParent(grid.transform);
+
+            // 공 뒤에 보이도록 z 값 설정
+            var pos = grid.CellToLocal(cell);
             pos.z = 1;
             selected.transform.localPosition = pos;
 
