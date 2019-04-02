@@ -85,6 +85,18 @@ public class GameManager : MonoBehaviour
     }
 
     /// <summary>
+    /// 마우스 드래그 이벤트
+    /// </summary>
+    void OnMouseDrag() // 함수가 호출 안됨...
+    {
+        Vector3 mousePosition = new Vector3(Input.mousePosition.x, Input.mousePosition.y, 10);
+
+        Vector3 objPosition = Camera.main.ScreenToWorldPoint(mousePosition);
+        transform.position = objPosition; // 오브젝트 자동인식 해당 포지션으로 이동
+        Debug.Log("드래그 함수 호출중");
+    }
+
+    /// <summary>
     /// 마우스 클릭을 처리합니다.
     /// </summary>
     private void HandleClick()
@@ -135,5 +147,6 @@ public class GameManager : MonoBehaviour
         }
 
         clicked = new Vector3Int(0, 0, -1);
+
     }
 }
