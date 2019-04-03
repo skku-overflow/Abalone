@@ -39,6 +39,7 @@ public class GameManager : MonoBehaviour
             new Vector3Int(5, 1, 0),
         };
 
+
         foreach (Vector3Int pos in whiteBalls)
         {
             RenderBall(pos, false);
