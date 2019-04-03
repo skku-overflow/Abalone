@@ -39,7 +39,6 @@ public class GameManager : MonoBehaviour
             new Vector3Int(5, 1, 0),
         };
 
-
         foreach (Vector3Int pos in whiteBalls)
         {
             RenderBall(pos, false);
@@ -83,17 +82,6 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// 마우스 드래그 이벤트
-    /// </summary>
-    void OnMouseDrag() // 함수가 호출 안됨...
-    {
-        Vector3 mousePosition = new Vector3(Input.mousePosition.x, Input.mousePosition.y, 10);
-
-        Vector3 objPosition = Camera.main.ScreenToWorldPoint(mousePosition);
-        transform.position = objPosition; // 오브젝트 자동인식 해당 포지션으로 이동
-        Debug.Log("드래그 함수 호출중");
-    }
 
     /// <summary>
     /// 마우스 클릭을 처리합니다.
@@ -117,9 +105,15 @@ public class GameManager : MonoBehaviour
         if (clicked.z == -1)
         {
             var ball = balls[cell.x, cell.y];
+            // 빈 공간 선택 금지
+            if (ball == null)
+            {
+                return;
+            }
+
+            // 턴이 아닌 경우 클릭 금지
             var isBlack = ball.GetComponent<MeshRenderer>().material.color == Color.black;
-            // 빈 공간 선택 금지 및 턴이 아닌 경우 클릭 금지
-            if (ball == null || isBlack != isBlackTurn)
+            if (isBlack != isBlackTurn)
             {
                 return;
             }
@@ -143,9 +137,51 @@ public class GameManager : MonoBehaviour
         if (clicked != cell && distance <= 1.5f)
         {
             // 이동
+            MoveBall(grid.WorldToLocal(cell), grid.WorldToLocal(clicked));
         }
 
         clicked = new Vector3Int(0, 0, -1);
+    }
+
+    private void MoveBall(Vector3 from, Vector3 to)
+    {
+        Debug.Log("Move (" + from + ") -> (" + to + ")");
+
+        var castDir = to - from;
+
+        var last = grid.LocalToCell(from);
+
+        RaycastHit hit;
+        Physics.Raycast(from, castDir, out hit);
+
+        // 이동하는 공의 개수
+        int ballCount = 1;
+
+        while (hit.collider != null)
+        {
+            Debug.Log("Hit" + last);
+            var ball = hit.collider.GetComponent<Ball>();
+            if (ball == null)
+            {
+                Debug.Log("ball == null");
+                break;
+            }
+            ballCount++;
+
+            if (ballCount > leftMove)
+            {
+                Debug.Log("ballCount > leftMove");
+                // TODO(kdy1): 남은 공 이동 횟수가 충분하지 않다는 에러 메시지 표시 
+                break;
+            }
+
+
+
+
+            last = grid.WorldToCell(hit.transform.position);
+            Physics.Raycast(hit.collider.transform.position, castDir, out hit);
+        }
+
 
     }
 }
