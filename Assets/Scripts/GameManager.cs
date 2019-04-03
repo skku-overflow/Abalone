@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
+    /// <summary> 
+    /// </summary>
     public Grid grid;
     public Ball ballPrefab;
     public GameObject selectedPrefab;
@@ -24,17 +26,17 @@ public class GameManager : MonoBehaviour
             new Vector3Int(0, 1, 0),
             new Vector3Int(1, 1, 0),
             new Vector3Int(1, 0, 0),
-            new Vector3Int(2, 1, 0),
             new Vector3Int(2, 0, 0),
-            new Vector3Int(3, 1, 0),
-            new Vector3Int(3, 0, 0),
-            new Vector3Int(4, 1, 0),
-            new Vector3Int(4, 0, 0),
-            new Vector3Int(5, 1, 0),
-            new Vector3Int(5, 0, 0),
+            new Vector3Int(2, 1, 0),
             new Vector3Int(2, 2, 0),
+            new Vector3Int(3, 0, 0),
+            new Vector3Int(3, 1, 0),
             new Vector3Int(3, 2, 0),
+            new Vector3Int(4, 0, 0),
+            new Vector3Int(4, 1, 0),
             new Vector3Int(4, 2, 0),
+            new Vector3Int(5, 0, 0),
+            new Vector3Int(5, 1, 0),
         };
 
         foreach (Vector3Int pos in whiteBalls)
@@ -46,11 +48,10 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// 공을 생성합니다
+    /// <summary>HexGrid 상에 공을 생성하는 함수입니다.
     /// </summary>
-    /// <param name="pos">Hex 좌표</param>
-    /// <param name="black">검은 공인지 여부</param>
+    /// <param name="pos"><c>Vector3Int</c> 형태의 좌표입니다.</param>
+    /// <param name="black"><c>true</c>일 경우 검은 공으로, 아니면 하얀 공으로 초기화합니다.</param>
     private void RenderBall(Vector3Int pos, bool black)
     {
         var ball = Instantiate<Ball>(ballPrefab);
@@ -67,9 +68,6 @@ public class GameManager : MonoBehaviour
         balls[pos.x, pos.y] = ball;
     }
 
-
-
-    // Update is called once per frame
     void Update()
     {
         if (selected != null)
@@ -85,7 +83,7 @@ public class GameManager : MonoBehaviour
     }
 
     /// <summary>
-    /// 마우스 클릭을 처리합니다.
+    /// 마우스 클릭에 대한 로직을 처지하는 함수입니다.
     /// </summary>
     private void HandleClick()
     {
