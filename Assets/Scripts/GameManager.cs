@@ -128,7 +128,7 @@ public class GameManager : MonoBehaviour
             pos.z = 1;
             selected.transform.localPosition = pos;
 
-            Debug.Log("선택: " + cell);
+            // Debug.Log("선택: " + cell);
 
             return;
         }
@@ -149,18 +149,19 @@ public class GameManager : MonoBehaviour
     private void MoveBall(Vector3 from, Vector3 to)
     {
         var castDir = to - from;
+        var distance = castDir.magnitude;
 
         var last = grid.LocalToCell(from);
 
         RaycastHit hit;
-        Physics.Raycast(from, castDir, out hit);
+        Physics.Raycast(from, castDir, out hit, distance);
 
         // 이동하는 공의 개수
         int ballCount = 1;
 
         while (hit.collider != null)
         {
-            Debug.Log("Hit" + grid.WorldToCell(hit.collider.transform.position));
+            Debug.Log("Hit: " + grid.WorldToCell(hit.collider.transform.position));
             var ball = hit.collider.GetComponent<Ball>();
             if (ball == null)
             {
@@ -180,7 +181,7 @@ public class GameManager : MonoBehaviour
 
 
             last = grid.WorldToCell(hit.collider.transform.position);
-            Physics.Raycast(hit.collider.transform.position, castDir, out hit);
+            Physics.Raycast(hit.collider.transform.position, castDir, out hit, distance);
         }
 
 
