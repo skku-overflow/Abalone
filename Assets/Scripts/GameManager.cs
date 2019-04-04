@@ -158,21 +158,12 @@ public class GameManager : MonoBehaviour
 
         // 이동하는 공의 개수
         int ballCount = 1;
+        var ballsToMove = new List<Vector3Int>();
 
         while (hit.collider != null)
         {
             var curCell = grid.WorldToCell(hit.collider.transform.position);
-            var ballAtCell = balls[curCell.x, curCell.y];
-
-            balls[last.x, last.y].transform.localPosition = grid.CellToLocal(curCell);
-
-            if (ballAtCell != null)
-            {
-                ballAtCell.transform.localPosition = ballAtCell.transform.localPosition + castDir;
-            }
-
-            balls[curCell.x, curCell.y] = balls[last.x, last.y];
-
+        
             Debug.Log("Hit: " + curCell);
             var ball = hit.collider.GetComponent<Ball>();
             if (ball == null)
@@ -180,8 +171,9 @@ public class GameManager : MonoBehaviour
                 Debug.Log("ball == null");
                 break;
             }
-            ballCount++;
+            ballsToMove.Add(curCell);
 
+            ballCount++;
             if (ballCount > leftMove)
             {
                 Debug.Log("ballCount > leftMove");
@@ -195,6 +187,30 @@ public class GameManager : MonoBehaviour
             last = curCell;
             Physics.Raycast(hit.collider.transform.position, castDir, out hit, distance);
         }
+
+        Debug.Log("Balls to move: "+ ballsToMove);
+
+        for(int i = 0; i < ballsToMove.Count-1; i++)
+        {
+            var lastCell = i==0?new Vector3Int(-1,-1,-1): ballsToMove[i-1];
+            var curCell = ballsToMove[i ];
+
+            var ballAtCell = balls[curCell.x, curCell.y];
+
+            if (last.x != -1)
+            {
+                balls[last.x, last.y].transform.localPosition = grid.CellToLocal(curCell);
+            }
+
+            if (ballAtCell != null)
+            {
+                ballAtCell.transform.localPosition = ballAtCell.transform.localPosition + castDir;
+            }
+
+            balls[curCell.x, curCell.y] = balls[last.x, last.y];
+
+        }
+
 
         leftMove -= ballCount;
 
