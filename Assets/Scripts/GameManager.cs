@@ -161,7 +161,19 @@ public class GameManager : MonoBehaviour
 
         while (hit.collider != null)
         {
-            Debug.Log("Hit: " + grid.WorldToCell(hit.collider.transform.position));
+            var curCell = grid.WorldToCell(hit.collider.transform.position);
+            var ballAtCell = balls[curCell.x, curCell.y];
+
+            balls[last.x, last.y].transform.localPosition = grid.CellToLocal(curCell);
+
+            if (ballAtCell != null)
+            {
+                ballAtCell.transform.localPosition = ballAtCell.transform.localPosition + castDir;
+            }
+
+            balls[curCell.x, curCell.y] = balls[last.x, last.y];
+
+            Debug.Log("Hit: " + curCell);
             var ball = hit.collider.GetComponent<Ball>();
             if (ball == null)
             {
@@ -180,10 +192,13 @@ public class GameManager : MonoBehaviour
 
 
 
-            last = grid.WorldToCell(hit.collider.transform.position);
+            last = curCell;
             Physics.Raycast(hit.collider.transform.position, castDir, out hit, distance);
         }
 
-
+        leftMove -= ballCount;
     }
+
+
+
 }
