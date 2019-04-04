@@ -157,13 +157,16 @@ public class GameManager : MonoBehaviour
         Physics.Raycast(from, castDir, out hit, distance);
 
         // 이동하는 공의 개수
-        int ballCount = 1;
-        var ballsToMove = new List<Vector3Int>();
+        int myBallCount = 1;
+        var ballsToMove = new List<Vector3Int>
+        {
+            last
+        };
 
         while (hit.collider != null)
         {
             var curCell = grid.WorldToCell(hit.collider.transform.position);
-        
+
             Debug.Log("Hit: " + curCell);
             var ball = hit.collider.GetComponent<Ball>();
             if (ball == null)
@@ -173,12 +176,12 @@ public class GameManager : MonoBehaviour
             }
             ballsToMove.Add(curCell);
 
-            ballCount++;
-            if (ballCount > leftMove)
+            myBallCount++;
+            if (myBallCount > leftMove)
             {
                 Debug.Log("ballCount > leftMove");
                 // TODO(kdy1): 남은 공 이동 횟수가 충분하지 않다는 에러 메시지 표시 
-                break;
+                return;
             }
 
 
@@ -188,34 +191,45 @@ public class GameManager : MonoBehaviour
             Physics.Raycast(hit.collider.transform.position, castDir, out hit, distance);
         }
 
-        Debug.Log("Balls to move: "+ ballsToMove);
-
-        for(int i = 0; i < ballsToMove.Count-1; i++)
+        if (ballsToMove.Count >= 6)
         {
-            var lastCell = i==0?new Vector3Int(-1,-1,-1): ballsToMove[i-1];
-            var curCell = ballsToMove[i ];
+            // 이동 불가능
+            Debug.Log("6개 이상의 공을 움직일 수 없습니다");
+            // TODO(kdy1): 6개 이상 움직일 수 없다는 에러 메시지 표시
+            return;
+        }
 
-            var ballAtCell = balls[curCell.x, curCell.y];
+        if (ballsToMove.Count > myBallCount * 2)
+        {
+            // 이동 불가능
+            Debug.Log(myBallCount + "개의 공으로 " + (ballsToMove.Count - myBallCount) + "개의 공을 밀 수 없습니다");
+            // TODO(kdy1): 에러 메시지 표시
+            return;
+        }
 
-            if (last.x != -1)
-            {
-                balls[last.x, last.y].transform.localPosition = grid.CellToLocal(curCell);
-            }
+        Debug.Log("Balls to move: " + ballsToMove);
 
-            if (ballAtCell != null)
-            {
-                ballAtCell.transform.localPosition = ballAtCell.transform.localPosition + castDir;
-            }
+        // 공을 이동시킵니다.
+        for (int i = 0; i < ballsToMove.Count; i++)
+        {
+            var curCell = ballsToMove[i];
+            var newLoc = grid.CellToLocal(curCell) + castDir;
+            var newCell = grid.LocalToCell(newLoc);
+            var ball = balls[curCell.x, curCell.y];
 
-            balls[curCell.x, curCell.y] = balls[last.x, last.y];
+            ball.transform.localPosition = ball.transform.localPosition + castDir;
 
+            balls[newCell.x, newCell.y] = ball;
+            balls[curCell.x, curCell.y] = null;
         }
 
 
-        leftMove -= ballCount;
+        leftMove -= myBallCount;
+        Debug.Assert(leftMove >= 0, "leftMove는 0 이상으로 유지돼야 합니다");
 
         if (leftMove == 0)
         {
+            leftMove = 3;
             isBlackTurn = !isBlackTurn;
         }
     }
