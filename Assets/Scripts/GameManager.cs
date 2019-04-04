@@ -197,6 +197,11 @@ public class GameManager : MonoBehaviour
         }
 
         leftMove -= ballCount;
+
+        if (leftMove == 0)
+        {
+            isBlackTurn = !isBlackTurn;
+        }
     }
 
 
