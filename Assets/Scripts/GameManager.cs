@@ -238,7 +238,12 @@ public class GameManager : MonoBehaviour
             }
             ballsToMove.Add(curCell);
 
-            myBallCount++;
+            var isBlack = ball.GetComponent<MeshRenderer>().material.color == Color.black;
+            if (isBlack == isBlackTurn)
+            {
+                myBallCount++;
+            }
+
             if (myBallCount > leftMove)
             {
                 Debug.Log("ballCount > leftMove");
