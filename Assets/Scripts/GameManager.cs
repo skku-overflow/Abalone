@@ -18,6 +18,79 @@ public class GameManager : MonoBehaviour
     private Vector3Int clicked = new Vector3Int(0, 0, -1);
     private GameObject selected;
 
+    private static readonly Vector3Int[] validPoints = new Vector3Int[] {
+            new Vector3Int(0, 3, 0),
+            new Vector3Int(0, 4, 0),
+            new Vector3Int(0, 5, 0),
+
+            new Vector3Int(1, 1, 0),
+            new Vector3Int(1, 2, 0),
+            new Vector3Int(1, 3, 0),
+            new Vector3Int(1, 4, 0),
+            new Vector3Int(1, 5, 0),
+            new Vector3Int(1, 6, 0),
+            new Vector3Int(1, 7, 0),
+
+            new Vector3Int(2, 0, 0),
+            new Vector3Int(2, 1, 0),
+            new Vector3Int(2, 2, 0),
+            new Vector3Int(2, 3, 0),
+            new Vector3Int(2, 4, 0),
+            new Vector3Int(2, 5, 0),
+            new Vector3Int(2, 6, 0),
+            new Vector3Int(2, 7, 0),
+            new Vector3Int(2, 8, 0),
+
+            new Vector3Int(3, 0, 0),
+            new Vector3Int(3, 1, 0),
+            new Vector3Int(3, 2, 0),
+            new Vector3Int(3, 3, 0),
+            new Vector3Int(3, 4, 0),
+            new Vector3Int(3, 5, 0),
+            new Vector3Int(3, 6, 0),
+            new Vector3Int(3, 7, 0),
+            new Vector3Int(3, 8, 0),
+
+            new Vector3Int(4, 0, 0),
+            new Vector3Int(4, 1, 0),
+            new Vector3Int(4, 2, 0),
+            new Vector3Int(4, 2, 0),
+            new Vector3Int(4, 3, 0),
+            new Vector3Int(4, 4, 0),
+            new Vector3Int(4, 5, 0),
+            new Vector3Int(4, 6, 0),
+            new Vector3Int(4, 7, 0),
+            new Vector3Int(4, 8, 0),
+
+            new Vector3Int(5, 0, 0),
+            new Vector3Int(5, 1, 0),
+            new Vector3Int(5, 2, 0),
+            new Vector3Int(5, 3, 0),
+            new Vector3Int(5, 4, 0),
+            new Vector3Int(5, 5, 0),
+            new Vector3Int(5, 6, 0),
+            new Vector3Int(5, 7, 0),
+            new Vector3Int(5, 8, 0),
+
+            new Vector3Int(6, 0, 0),
+            new Vector3Int(6, 1, 0),
+            new Vector3Int(6, 2, 0),
+            new Vector3Int(6, 3, 0),
+            new Vector3Int(6, 4, 0),
+            new Vector3Int(6, 5, 0),
+            new Vector3Int(6, 6, 0),
+            new Vector3Int(6, 7, 0),
+            new Vector3Int(6, 8, 0),
+
+            new Vector3Int(7, 2, 0),
+            new Vector3Int(7, 3, 0),
+            new Vector3Int(7, 4, 0),
+            new Vector3Int(7, 5, 0),
+            new Vector3Int(7, 6, 0),
+
+            new Vector3Int(8, 4, 0),
+       };
+
     void Awake()
     {
         balls = new Ball[10, 10];
@@ -49,54 +122,11 @@ public class GameManager : MonoBehaviour
         }
 
 
-        var points = new Vector3Int[] {
-            new Vector3Int(0, 3, 0),
-            new Vector3Int(0, 4, 0),
-            new Vector3Int(1, 1, 0),
-            new Vector3Int(1, 2, 0),
-            new Vector3Int(1, 3, 0),
-            new Vector3Int(1, 4, 0),
-            new Vector3Int(2, 0, 0),
-            new Vector3Int(2, 1, 0),
-            new Vector3Int(2, 2, 0),
-            new Vector3Int(2, 3, 0),
-            new Vector3Int(2, 4, 0),
-            new Vector3Int(3, 0, 0),
-            new Vector3Int(3, 1, 0),
-            new Vector3Int(3, 2, 0),
-            new Vector3Int(3, 3, 0),
-            new Vector3Int(3, 4, 0),
-            new Vector3Int(4, 0, 0),
-            new Vector3Int(4, 1, 0),
-            new Vector3Int(4, 2, 0),
-            new Vector3Int(4, 2, 0),
-            new Vector3Int(4, 3, 0),
-            new Vector3Int(4, 4, 0),
-            new Vector3Int(5, 0, 0),
-            new Vector3Int(5, 1, 0),
-            new Vector3Int(5, 2, 0),
-            new Vector3Int(5, 3, 0),
-            new Vector3Int(5, 4, 0),
-            new Vector3Int(6, 0, 0),
-            new Vector3Int(6, 1, 0),
-            new Vector3Int(6, 2, 0),
-            new Vector3Int(6, 3, 0),
-            new Vector3Int(6, 4, 0),
-            new Vector3Int(7, 2, 0),
-            new Vector3Int(7, 3, 0),
-            new Vector3Int(7, 4, 0),
-            new Vector3Int(8, 4, 0),
-       };
 
-        foreach (Vector3Int pos in points)
+
+        foreach (Vector3Int pos in validPoints)
         {
             CreatePoint(pos);
-            if (pos.y != 4)
-            {
-                var mirroredPos = pos;
-                mirroredPos.y = 8 - pos.y;
-                CreatePoint(mirroredPos);
-            }
         }
     }
 
@@ -236,10 +266,13 @@ public class GameManager : MonoBehaviour
                 Debug.Log("ball == null");
                 break;
             }
-            ballsToMove.Add(curCell);
+            ballsToMove.Insert(0, curCell);
 
             var isBlack = ball.GetComponent<MeshRenderer>().material.color == Color.black;
-            if (isBlack == isBlackTurn)
+            var isMyBall = isBlack == isBlackTurn;
+
+
+            if (isMyBall)
             {
                 myBallCount++;
             }
@@ -274,15 +307,19 @@ public class GameManager : MonoBehaviour
             return;
         }
 
-        Debug.Log("Balls to move: " + ballsToMove);
+
+
 
         // 공을 이동시킵니다.
-        for (int i = 0; i < ballsToMove.Count; i++)
+        foreach (var curCell in ballsToMove)
         {
-            var curCell = ballsToMove[i];
             var newLoc = grid.CellToLocal(curCell) + castDir;
             var newCell = grid.LocalToCell(newLoc);
+
+            Debug.Log("이동: " + curCell + " -> " + newCell);
+
             var ball = balls[curCell.x, curCell.y];
+
 
             ball.transform.localPosition = ball.transform.localPosition + castDir;
 
@@ -290,6 +327,7 @@ public class GameManager : MonoBehaviour
             balls[curCell.x, curCell.y] = null;
         }
 
+        Debug.Log(myBallCount + "개 이동");
 
         leftMove -= myBallCount;
         Debug.Assert(leftMove >= 0, "leftMove는 0 이상으로 유지돼야 합니다");
