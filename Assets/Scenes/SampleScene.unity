@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 170076734}
-  m_IndirectSpecularColor: {r: 0.44657838, g: 0.49641234, b: 0.57481676, a: 1}
+  m_IndirectSpecularColor: {r: 0.44657868, g: 0.49641263, b: 0.57481706, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -310,6 +310,8 @@ MonoBehaviour:
   ballPrefab: {fileID: 5426652743834772930, guid: 3dfe5343e501d413d99e4d2e8be69d0d,
     type: 3}
   selectedPrefab: {fileID: 5684935452492711118, guid: 6225c4303f9ac4950bdfe74b3622dc46,
+    type: 3}
+  pointPrefab: {fileID: 5672870200521708746, guid: b79cebd7b81205b49947676e8e31a5a3,
     type: 3}
 --- !u!1 &1832875651
 GameObject:
