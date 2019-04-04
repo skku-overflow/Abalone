@@ -9,6 +9,7 @@ public class GameManager : MonoBehaviour
     public Grid grid;
     public Ball ballPrefab;
     public GameObject selectedPrefab;
+    public GameObject pointPrefab;
 
     private Ball[,] balls;
     private bool isBlackTurn = true;
@@ -23,12 +24,9 @@ public class GameManager : MonoBehaviour
 
         // 흰 공 좌표. 
         var whiteBalls = new Vector3Int[] {
-            new Vector3Int(0, 1, 0),
             new Vector3Int(1, 1, 0),
-            new Vector3Int(1, 0, 0),
-            new Vector3Int(2, 0, 0),
             new Vector3Int(2, 1, 0),
-            new Vector3Int(2, 2, 0),
+            new Vector3Int(2, 0, 0),
             new Vector3Int(3, 0, 0),
             new Vector3Int(3, 1, 0),
             new Vector3Int(3, 2, 0),
@@ -37,22 +35,86 @@ public class GameManager : MonoBehaviour
             new Vector3Int(4, 2, 0),
             new Vector3Int(5, 0, 0),
             new Vector3Int(5, 1, 0),
+            new Vector3Int(5, 2, 0),
+            new Vector3Int(6, 0, 0),
+            new Vector3Int(6, 1, 0),
         };
 
         foreach (Vector3Int pos in whiteBalls)
         {
-            RenderBall(pos, false);
+            CreateBall(pos, false);
             var blackPos = pos;
             blackPos.y = 8 - blackPos.y;
-            RenderBall(blackPos, true);
+            CreateBall(blackPos, true);
+        }
+
+
+        var points = new Vector3Int[] {
+            new Vector3Int(0, 3, 0),
+            new Vector3Int(0, 4, 0),
+            new Vector3Int(1, 1, 0),
+            new Vector3Int(1, 2, 0),
+            new Vector3Int(1, 3, 0),
+            new Vector3Int(1, 4, 0),
+            new Vector3Int(2, 0, 0),
+            new Vector3Int(2, 1, 0),
+            new Vector3Int(2, 2, 0),
+            new Vector3Int(2, 3, 0),
+            new Vector3Int(2, 4, 0),
+            new Vector3Int(3, 0, 0),
+            new Vector3Int(3, 1, 0),
+            new Vector3Int(3, 2, 0),
+            new Vector3Int(3, 3, 0),
+            new Vector3Int(3, 4, 0),
+            new Vector3Int(4, 0, 0),
+            new Vector3Int(4, 1, 0),
+            new Vector3Int(4, 2, 0),
+            new Vector3Int(4, 2, 0),
+            new Vector3Int(4, 3, 0),
+            new Vector3Int(4, 4, 0),
+            new Vector3Int(5, 0, 0),
+            new Vector3Int(5, 1, 0),
+            new Vector3Int(5, 2, 0),
+            new Vector3Int(5, 3, 0),
+            new Vector3Int(5, 4, 0),
+            new Vector3Int(6, 0, 0),
+            new Vector3Int(6, 1, 0),
+            new Vector3Int(6, 2, 0),
+            new Vector3Int(6, 3, 0),
+            new Vector3Int(6, 4, 0),
+            new Vector3Int(7, 2, 0),
+            new Vector3Int(7, 3, 0),
+            new Vector3Int(7, 4, 0),
+            new Vector3Int(8, 4, 0),
+       };
+
+        foreach (Vector3Int pos in points)
+        {
+            CreatePoint(pos);
+            if (pos.y != 4)
+            {
+                var mirroredPos = pos;
+                mirroredPos.y = 8 - pos.y;
+                CreatePoint(mirroredPos);
+            }
         }
     }
 
-    /// <summary>HexGrid 상에 공을 생성하는 함수입니다.
+    private void CreatePoint(Vector3Int pos)
+    {
+        var point = Instantiate<GameObject>(pointPrefab);
+        point.transform.SetParent(grid.transform);
+        var loc = grid.CellToLocal(pos);
+        point.transform.localPosition = loc;
+        point.GetComponent<MeshRenderer>().material.color = Color.red;
+    }
+
+    /// <summary>
+    /// HexGrid 내부에 공을 생성합니다.
     /// </summary>
     /// <param name="pos"><c>Vector3Int</c> 형태의 좌표입니다.</param>
     /// <param name="black"><c>true</c>일 경우 검은 공으로, 아니면 하얀 공으로 초기화합니다.</param>
-    private void RenderBall(Vector3Int pos, bool black)
+    private void CreateBall(Vector3Int pos, bool black)
     {
         var ball = Instantiate<Ball>(ballPrefab);
         // 공을 grid의 child로 만듦
@@ -100,6 +162,7 @@ public class GameManager : MonoBehaviour
 
         // 클릭한 좌표 -> Hex 좌표
         var cell = grid.WorldToCell(hit.transform.position);
+        Debug.Log("선택: " + cell);
 
         // 만약 현재 클릭된 공이 없다면
         if (clicked.z == -1)
@@ -128,7 +191,6 @@ public class GameManager : MonoBehaviour
             pos.z = 1;
             selected.transform.localPosition = pos;
 
-            // Debug.Log("선택: " + cell);
 
             return;
         }
@@ -157,21 +219,15 @@ public class GameManager : MonoBehaviour
         Physics.Raycast(from, castDir, out hit, distance);
 
         // 이동하는 공의 개수
-        int ballCount = 1;
+        int myBallCount = 1;
+        var ballsToMove = new List<Vector3Int>
+        {
+            last
+        };
 
         while (hit.collider != null)
         {
             var curCell = grid.WorldToCell(hit.collider.transform.position);
-            var ballAtCell = balls[curCell.x, curCell.y];
-
-            balls[last.x, last.y].transform.localPosition = grid.CellToLocal(curCell);
-
-            if (ballAtCell != null)
-            {
-                ballAtCell.transform.localPosition = ballAtCell.transform.localPosition + castDir;
-            }
-
-            balls[curCell.x, curCell.y] = balls[last.x, last.y];
 
             Debug.Log("Hit: " + curCell);
             var ball = hit.collider.GetComponent<Ball>();
@@ -180,13 +236,14 @@ public class GameManager : MonoBehaviour
                 Debug.Log("ball == null");
                 break;
             }
-            ballCount++;
+            ballsToMove.Add(curCell);
 
-            if (ballCount > leftMove)
+            myBallCount++;
+            if (myBallCount > leftMove)
             {
                 Debug.Log("ballCount > leftMove");
                 // TODO(kdy1): 남은 공 이동 횟수가 충분하지 않다는 에러 메시지 표시 
-                break;
+                return;
             }
 
 
@@ -196,10 +253,45 @@ public class GameManager : MonoBehaviour
             Physics.Raycast(hit.collider.transform.position, castDir, out hit, distance);
         }
 
-        leftMove -= ballCount;
+        if (ballsToMove.Count >= 6)
+        {
+            // 이동 불가능
+            Debug.Log("6개 이상의 공을 움직일 수 없습니다");
+            // TODO(kdy1): 6개 이상 움직일 수 없다는 에러 메시지 표시
+            return;
+        }
+
+        if (ballsToMove.Count > myBallCount * 2)
+        {
+            // 이동 불가능
+            Debug.Log(myBallCount + "개의 공으로 " + (ballsToMove.Count - myBallCount) + "개의 공을 밀 수 없습니다");
+            // TODO(kdy1): 에러 메시지 표시
+            return;
+        }
+
+        Debug.Log("Balls to move: " + ballsToMove);
+
+        // 공을 이동시킵니다.
+        for (int i = 0; i < ballsToMove.Count; i++)
+        {
+            var curCell = ballsToMove[i];
+            var newLoc = grid.CellToLocal(curCell) + castDir;
+            var newCell = grid.LocalToCell(newLoc);
+            var ball = balls[curCell.x, curCell.y];
+
+            ball.transform.localPosition = ball.transform.localPosition + castDir;
+
+            balls[newCell.x, newCell.y] = ball;
+            balls[curCell.x, curCell.y] = null;
+        }
+
+
+        leftMove -= myBallCount;
+        Debug.Assert(leftMove >= 0, "leftMove는 0 이상으로 유지돼야 합니다");
 
         if (leftMove == 0)
         {
+            leftMove = 3;
             isBlackTurn = !isBlackTurn;
         }
     }
