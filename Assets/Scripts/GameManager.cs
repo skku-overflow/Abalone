@@ -9,7 +9,7 @@ public class GameManager : MonoBehaviour
     public Grid grid;
     public Ball ballPrefab;
     public GameObject selectedPrefab;
-    public GameObject pointPrefab;
+    public Cell cellPrefab;
 
     private Ball[,] balls;
     private bool isBlackTurn = true;
@@ -126,17 +126,16 @@ public class GameManager : MonoBehaviour
 
         foreach (Vector3Int pos in validPoints)
         {
-            CreatePoint(pos);
+            CreateCell(pos);
         }
     }
 
-    private void CreatePoint(Vector3Int pos)
+    private void CreateCell(Vector3Int pos)
     {
-        var point = Instantiate<GameObject>(pointPrefab);
-        point.transform.SetParent(grid.transform);
+        var cell = Instantiate<Cell>(cellPrefab);
+        cell.transform.SetParent(grid.transform);
         var loc = grid.CellToLocal(pos);
-        point.transform.localPosition = loc;
-        point.GetComponent<MeshRenderer>().material.color = Color.red;
+        cell.transform.localPosition = loc;
     }
 
     /// <summary>

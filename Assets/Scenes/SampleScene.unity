@@ -311,7 +311,7 @@ MonoBehaviour:
     type: 3}
   selectedPrefab: {fileID: 5684935452492711118, guid: 6225c4303f9ac4950bdfe74b3622dc46,
     type: 3}
-  pointPrefab: {fileID: 5672870200521708746, guid: b79cebd7b81205b49947676e8e31a5a3,
+  cellPrefab: {fileID: 5241984189865542426, guid: b79cebd7b81205b49947676e8e31a5a3,
     type: 3}
 --- !u!1 &1832875651
 GameObject:
