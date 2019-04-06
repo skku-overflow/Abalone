@@ -260,11 +260,23 @@ public class GameManager : MonoBehaviour
 
             Debug.Log("Hit: " + curCell);
             var ball = hit.collider.GetComponent<Ball>();
-            if (ball == null)
+            if (ball == null && hit.collider.GetComponent<Cell>() == null)
             {
-                Debug.Log("ball == null");
+                Debug.Log("ball == null && cell == null");
                 break;
             }
+
+            // Cell이 Raycast에 먼저 맞은 경우 처리
+            if (ball == null)
+            {
+                ball = balls[curCell.x, curCell.y];
+                if (ball == null)
+                {
+                    Debug.Log("ball == null");
+                    break;
+                }
+            }
+
             ballsToMove.Insert(0, curCell);
 
             var isBlack = ball.GetComponent<MeshRenderer>().material.color == Color.black;
