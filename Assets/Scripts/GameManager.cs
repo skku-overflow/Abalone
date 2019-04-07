@@ -14,6 +14,7 @@ public class GameManager : MonoBehaviour
     private Ball[,] balls;
     private bool isBlackTurn = true;
     private int leftMove = 3;
+    private int whiteDeadCount, blackDeadCount;
 
     private Vector3Int clicked = new Vector3Int(0, 0, -1);
     private GameObject selected;
@@ -326,16 +327,45 @@ public class GameManager : MonoBehaviour
         {
             var newLoc = grid.CellToLocal(curCell) + castDir;
             var newCell = grid.LocalToCell(newLoc);
+            var moveToValid = IsValid(newCell);
 
             Debug.Log("이동: " + curCell + " -> " + newCell);
 
             var ball = balls[curCell.x, curCell.y];
+            if (moveToValid)
+            {
+                ball.transform.localPosition = ball.transform.localPosition + castDir;
 
+                balls[newCell.x, newCell.y] = ball;
+            }
+            else
+            {
+                var isBlack = ball.GetComponent<MeshRenderer>().material.color == Color.black;
+                if (isBlack)
+                {
+                    blackDeadCount++;
+                }
+                else
+                {
+                    whiteDeadCount++;
+                }
 
-            ball.transform.localPosition = ball.transform.localPosition + castDir;
-
-            balls[newCell.x, newCell.y] = ball;
+                Destroy(ball);
+            }
             balls[curCell.x, curCell.y] = null;
+
+
+            if (blackDeadCount >= 6)
+            {
+                Debug.Log("흰색이 이겼습니다");
+                // TODO: UI
+            }
+            else if (whiteDeadCount >= 6)
+            {
+                Debug.Log("검은색이 이겼습니다");
+                // TODO: UI
+            }
+
         }
 
         Debug.Log(myBallCount + "개 이동");
@@ -351,5 +381,13 @@ public class GameManager : MonoBehaviour
     }
 
 
+    private bool IsValid(Vector3Int cell)
+    {
+        foreach (var point in validPoints)
+        {
+            if (point == cell) return true;
+        }
+        return false;
+    }
 
 }
