@@ -250,13 +250,18 @@ public class GameManager : MonoBehaviour
         {
             // 이동
             // Debug.Log("Move(" + clicked + " -> " + cell + ")");
-            MoveBall(grid.CellToLocal(clicked), grid.CellToLocal(cell));
+            Move(clicked, cell);
         }
 
         clicked = new Vector3Int(0, 0, -1);
     }
 
-    private void MoveBall(Vector3 from, Vector3 to)
+    private void Move(Vector3Int from, Vector3Int to)
+    {
+        MoveBallInner(grid.CellToLocal(from), grid.CellToLocal(to));
+    }
+
+    private void MoveBallInner(Vector3 from, Vector3 to)
     {
         if (selected != null)
         {
@@ -303,6 +308,7 @@ public class GameManager : MonoBehaviour
                 }
             }
 
+            Debug.Log("Cell: " + curCell);
             ballsToMove.Insert(0, curCell);
 
             var isBlack = ball.GetComponent<MeshRenderer>().material.color == Color.black;
@@ -316,7 +322,7 @@ public class GameManager : MonoBehaviour
 
             if (myBallCount > leftMove)
             {
-                Debug.Log("ballCount > leftMove");
+                Debug.Log("ballCount(" + myBallCount + ") > leftMove(" + leftMove + ")");
                 // TODO(kdy1): 남은 공 이동 횟수가 충분하지 않다는 에러 메시지 표시 
                 return;
             }
@@ -456,6 +462,7 @@ public class GameManager : MonoBehaviour
         var point = Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, dragScreenPoint.z));
 
         var cell = grid.WorldToCell(point);
+        Debug.Log("Cell: " + cell);
         Ball ball = null;
         if (cell != null)
         {
@@ -463,7 +470,7 @@ public class GameManager : MonoBehaviour
             {
                 ball = balls[cell.x, cell.y];
             }
-            catch (Exception e)
+            catch
             {
                 // Debug.Log("Error: " + e);
             }
@@ -500,15 +507,15 @@ public class GameManager : MonoBehaviour
 
             var origPosition = grid.CellToWorld(draggingCell);
             var dist = Vector3Int.Distance(curCell, draggingCell);
-            Debug.Log("OnMouseDragEnd(): " + dist);
             if (dist < 1.5f)
             {
-                MoveBall(origPosition, grid.CellToWorld(curCell));
+                Move(draggingCell, curCell);
             }
 
         }
         finally
         {
+            clicked = new Vector3Int(0, 0, -1);
             draggingCell = new Vector3Int(0, 0, -1);
         }
     }
