@@ -445,10 +445,9 @@ public class GameManager : MonoBehaviour
     private void OnMouseDown()
     {
         dragScreenPoint = Camera.main.WorldToScreenPoint(transform.position);
+        var point = Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, dragScreenPoint.z));
 
-        dragOffset = transform.position - Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, dragScreenPoint.z));
-
-        var cell = grid.WorldToCell(dragOffset);
+        var cell = grid.WorldToCell(point);
         Ball ball = null;
         if (cell != null)
         {
@@ -465,16 +464,14 @@ public class GameManager : MonoBehaviour
         }
         Debug.Log("Ball: " + ball);
         if (ball == null) return;
+        dragOffset = ball.transform.position - point;
         draggingCell = cell;
     }
 
     private void OnMouseDrag()
     {
         Vector3 curScreenPoint = new Vector3(Input.mousePosition.x, Input.mousePosition.y, dragScreenPoint.z);
-
         Vector3 curPosition = Camera.main.ScreenToWorldPoint(curScreenPoint) + dragOffset;
-        transform.position = curPosition;
-
 
         if (draggingCell == null || draggingCell.z == -1) return;
 
