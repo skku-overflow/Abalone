@@ -240,7 +240,9 @@ public class GameManager : MonoBehaviour
 
     private void MoveBall(Vector3 from, Vector3 to)
     {
+        // 이동을 나타내는 벡터
         var castDir = to - from;
+        // 이동하는 거리
         var distance = castDir.magnitude;
 
         var last = grid.LocalToCell(from);
@@ -319,7 +321,23 @@ public class GameManager : MonoBehaviour
             return;
         }
 
+        // 자기 공을 죽이는지 여부를 검사합니다.
+        foreach (var curCell in ballsToMove)
+        {
+            var newLoc = grid.CellToLocal(curCell) + castDir;
+            var newCell = grid.LocalToCell(newLoc);
+            var moveToValid = IsValid(newCell);
 
+            // 이동하는 공
+            var ball = balls[curCell.x, curCell.y];
+            if (!moveToValid)
+            {
+                var isBlack = ball.GetComponent<MeshRenderer>().material.color == Color.black;
+                
+                // 자기 공을 죽이는 방향으로 이동할 수 없습니다. 
+                if (isBlack == isBlackTurn) return;
+            }
+        }
 
 
         // 공을 이동시킵니다.
@@ -340,6 +358,8 @@ public class GameManager : MonoBehaviour
             }
             else
             {
+                // 공이 죽었습니다.
+
                 var isBlack = ball.GetComponent<MeshRenderer>().material.color == Color.black;
                 if (isBlack)
                 {
@@ -350,11 +370,12 @@ public class GameManager : MonoBehaviour
                     whiteDeadCount++;
                 }
 
+                // 죽은 공을 화면에서 제거합니다.
                 Destroy(ball);
             }
             balls[curCell.x, curCell.y] = null;
 
-
+            
             if (blackDeadCount >= 6)
             {
                 Debug.Log("흰색이 이겼습니다");
@@ -375,8 +396,9 @@ public class GameManager : MonoBehaviour
 
         if (leftMove == 0)
         {
-            leftMove = 3;
+            // 턴이 끝났습니다
             isBlackTurn = !isBlackTurn;
+            leftMove = 3;
         }
     }
 
