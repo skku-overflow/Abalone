@@ -160,6 +160,18 @@ public class GameManager : MonoBehaviour
         balls[pos.x, pos.y] = ball;
     }
 
+    void OnGUI()
+    {
+        GUI.Label(new Rect(10, 0, 100, 40), (isBlackTurn ? "검은" : "흰") +"색 차례" );
+
+        GUI.Label(new Rect(10, 20, 100, 40), "남은 이동 횟수: " + leftMove + "회");
+        if (GUI.Button(new Rect(10, 60, 100, 40), "턴 종료"))
+        {
+            ChangeTurn();
+        }
+
+    }
+
     void Update()
     {
         if (selected != null)
@@ -173,7 +185,6 @@ public class GameManager : MonoBehaviour
             HandleClick();
         }
     }
-
 
     /// <summary>
     /// 마우스 클릭을 처리합니다.
@@ -397,9 +408,16 @@ public class GameManager : MonoBehaviour
         if (leftMove == 0)
         {
             // 턴이 끝났습니다
-            isBlackTurn = !isBlackTurn;
-            leftMove = 3;
+            ChangeTurn();
         }
+    }
+    /// <summary>
+    /// 턴을 변경합니다. 검은색 차례였다면 흰색 차례가 됩니다.
+    /// </summary>
+    private void ChangeTurn()
+    {
+        isBlackTurn = !isBlackTurn;
+        leftMove = 3;
     }
 
 
