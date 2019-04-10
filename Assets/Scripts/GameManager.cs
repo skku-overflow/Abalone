@@ -249,7 +249,7 @@ public class GameManager : MonoBehaviour
         if (clicked != cell && distance <= 1.5f)
         {
             // 이동
-            Debug.Log("Move(" + clicked + " -> " + cell + ")");
+            // Debug.Log("Move(" + clicked + " -> " + cell + ")");
             MoveBall(grid.CellToLocal(clicked), grid.CellToLocal(cell));
         }
 
@@ -258,6 +258,12 @@ public class GameManager : MonoBehaviour
 
     private void MoveBall(Vector3 from, Vector3 to)
     {
+        if (selected != null)
+        {
+            Destroy(selected);
+            selected = null;
+        }
+
         // 이동을 나타내는 벡터
         var castDir = to - from;
         // 이동하는 거리
@@ -356,7 +362,7 @@ public class GameManager : MonoBehaviour
             }
         }
 
-
+        int i = 0;
         // 공을 이동시킵니다.
         foreach (var curCell in ballsToMove)
         {
@@ -389,6 +395,8 @@ public class GameManager : MonoBehaviour
 
                 // 죽은 공을 화면에서 제거합니다.
                 Destroy(ball);
+
+                i++;
             }
             balls[curCell.x, curCell.y] = null;
 
@@ -451,8 +459,6 @@ public class GameManager : MonoBehaviour
         Ball ball = null;
         if (cell != null)
         {
-            Debug.Log("Point: " + dragScreenPoint);
-            Debug.Log("Cell: " + cell);
             try
             {
                 ball = balls[cell.x, cell.y];
@@ -462,7 +468,6 @@ public class GameManager : MonoBehaviour
                 // Debug.Log("Error: " + e);
             }
         }
-        Debug.Log("Ball: " + ball);
         if (ball == null) return;
         dragOffset = ball.transform.position - point;
         draggingCell = cell;
@@ -483,17 +488,28 @@ public class GameManager : MonoBehaviour
     private void OnMouseDragEnd()
     {
         if (draggingCell == null || draggingCell.z == -1) return;
-        draggingCell = new Vector3Int(0, 0, -1);
-
-        Vector3 curPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition) + dragOffset;
-        var curCell = grid.WorldToCell(curPosition);
+        var ball = balls[draggingCell.x, draggingCell.y];
+        ball.transform.localPosition = grid.CellToLocal(draggingCell);
 
 
-        var origPosition = grid.CellToWorld(draggingCell);
-        var dist = Vector3.Distance(curPosition, origPosition);
-        if (dist < 1.5f)
+        try
         {
-            MoveBall(origPosition, grid.CellToWorld(curCell));
+
+            Vector3 curPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition) + dragOffset;
+            var curCell = grid.WorldToCell(curPosition);
+
+            var origPosition = grid.CellToWorld(draggingCell);
+            var dist = Vector3Int.Distance(curCell, draggingCell);
+            Debug.Log("OnMouseDragEnd(): " + dist);
+            if (dist < 1.5f)
+            {
+                MoveBall(origPosition, grid.CellToWorld(curCell));
+            }
+
+        }
+        finally
+        {
+            draggingCell = new Vector3Int(0, 0, -1);
         }
     }
 }
