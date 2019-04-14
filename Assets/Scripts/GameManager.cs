@@ -210,7 +210,8 @@ public class GameManager : MonoBehaviour
 
         // 클릭한 좌표 -> Hex 좌표
         var cell = grid.WorldToCell(hit.transform.position);
-        // Debug.Log("선택: " + cell);
+        // Debug.Log("this.clicked: " + clicked);
+        // Debug.Log("cell: " + cell);
 
         // 만약 현재 클릭된 공이 없다면
         if (clicked.z == -1)
@@ -249,7 +250,6 @@ public class GameManager : MonoBehaviour
         if (clicked != cell && distance <= 1.5f)
         {
             // 이동
-            // Debug.Log("Move(" + clicked + " -> " + cell + ")");
             Move(clicked, cell);
         }
 
@@ -258,11 +258,16 @@ public class GameManager : MonoBehaviour
 
     private void Move(Vector3Int from, Vector3Int to)
     {
+        Debug.Log("이동: " + from + " -> " + to);
         MoveBallInner(grid.CellToLocal(from), grid.CellToLocal(to));
     }
 
     private void MoveBallInner(Vector3 from, Vector3 to)
     {
+        // No-op
+        if (from == to) return;
+
+
         if (selected != null)
         {
             Destroy(selected);
@@ -328,10 +333,8 @@ public class GameManager : MonoBehaviour
             }
 
 
-
-
             last = curCell;
-            Physics.Raycast(hit.collider.transform.position, castDir, out hit, distance);
+            Physics.Raycast(grid.CellToWorld(curCell), castDir, out hit, distance);
         }
 
         if (ballsToMove.Count >= 6)
@@ -376,7 +379,7 @@ public class GameManager : MonoBehaviour
             var newCell = grid.LocalToCell(newLoc);
             var moveToValid = IsValid(newCell);
 
-            Debug.Log("이동: " + curCell + " -> " + newCell);
+            // Debug.Log("공 이동: " + curCell + " -> " + newCell);
 
             var ball = balls[curCell.x, curCell.y];
             if (moveToValid)
@@ -487,15 +490,19 @@ public class GameManager : MonoBehaviour
 
         if (draggingCell == null || draggingCell.z == -1) return;
 
-        Debug.Log("OnMouseDrag");
         var ball = balls[draggingCell.x, draggingCell.y];
-        ball.transform.position = curPosition;
+        if (ball != null)
+        {
+            ball.transform.position = curPosition;
+        }
     }
 
     private void OnMouseDragEnd()
     {
         if (draggingCell == null || draggingCell.z == -1) return;
         var ball = balls[draggingCell.x, draggingCell.y];
+        if (ball == null) return;
+
         ball.transform.localPosition = grid.CellToLocal(draggingCell);
 
 
@@ -510,12 +517,12 @@ public class GameManager : MonoBehaviour
             if (dist < 1.5f)
             {
                 Move(draggingCell, curCell);
+                // clicked = new Vector3Int(0, 0, -1);
             }
 
         }
         finally
         {
-            clicked = new Vector3Int(0, 0, -1);
             draggingCell = new Vector3Int(0, 0, -1);
         }
     }
