@@ -258,6 +258,7 @@ public class GameManager : MonoBehaviour
 
     private void Move(Vector3Int from, Vector3Int to)
     {
+        if (from == to) return;
         Debug.Log("이동: " + from + " -> " + to);
         MoveBallInner(grid.CellToLocal(from), grid.CellToLocal(to));
     }
@@ -294,17 +295,16 @@ public class GameManager : MonoBehaviour
             last
         };
 
-        List<Vector3Int> dejavu = new List<Vector3Int>();
 
         while (hit.collider != null)
         {
-            var curCell = grid.WorldToCell(hit.collider.transform.position);
-            if (dejavu.Contains(curCell))
-            {
-                throw new Exception("Dejavu: " + string.Join(", ", dejavu));
-            }
+            Debug.Log("Last:" + grid.CellToLocal(last));
+            Debug.Log(" Cur: " + hit.collider.transform.position);
 
-            dejavu.Add(curCell);
+
+            var curCell = grid.WorldToCell(hit.collider.transform.position);
+            Debug.Assert(curCell != last, "curCell이 last와 같을 수 없습니다");
+
 
             var ball = hit.collider.GetComponent<Ball>();
             if (ball == null && hit.collider.GetComponent<Cell>() == null)
@@ -348,7 +348,7 @@ public class GameManager : MonoBehaviour
 
 
             last = curCell;
-            Physics.Raycast(grid.CellToWorld(curCell), castDir, out hit, distance);
+            Physics.Raycast(grid.CellToWorld(curCell) + (castDir / 2), castDir, out hit, distance);
         }
 
         if (ballsToMove.Count >= 6)
