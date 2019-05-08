@@ -3,7 +3,13 @@ guid: 5ad6b5af4061e49b084085eacaffee5f
 MonoImporter:
   externalObjects: {}
   serializedVersion: 2
-  defaultReferences: []
+  defaultReferences:
+  - grid: {instanceID: 0}
+  - ballPrefab: {instanceID: 0}
+  - selectedPrefab: {instanceID: 0}
+  - cellPrefab: {instanceID: 0}
+  - turnover_audioclip: {fileID: 8300000, guid: b8f2698ae8692694b9b697dbeeaa95af,
+      type: 3}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 

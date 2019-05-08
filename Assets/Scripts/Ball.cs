@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class Ball : MonoBehaviour
 {
+    GameManager game1;
     // Start is called before the first frame update
     void Start()
     {
@@ -16,3 +17,4 @@ public class Ball : MonoBehaviour
 
     }
 }
+W

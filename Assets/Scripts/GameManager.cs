@@ -10,11 +10,13 @@ public class GameManager : MonoBehaviour
     public Ball ballPrefab;
     public GameObject selectedPrefab;
     public Cell cellPrefab;
+    public AudioClip turnover_audioclip;
 
     private Ball[,] balls;
     private bool isBlackTurn = true;
     private int leftMove = 3;
     private int whiteDeadCount, blackDeadCount;
+    private AudioSource turnover_audio;
 
     private Vector3Int clicked = new Vector3Int(0, 0, -1);
     private GameObject selected;
@@ -96,6 +98,7 @@ public class GameManager : MonoBehaviour
     {
         balls = new Ball[10, 10];
 
+
         // 흰 공 좌표. 
         var whiteBalls = new Vector3Int[] {
             new Vector3Int(1, 1, 0),
@@ -129,6 +132,8 @@ public class GameManager : MonoBehaviour
         {
             CreateCell(pos);
         }
+        turnover_audio = GetComponent<AudioSource>();
+        turnover_audio.clip = turnover_audioclip;
     }
 
     private void CreateCell(Vector3Int pos)
@@ -418,6 +423,7 @@ public class GameManager : MonoBehaviour
     {
         isBlackTurn = !isBlackTurn;
         leftMove = 3;
+        turnover_audio.Play();
     }
 
 
