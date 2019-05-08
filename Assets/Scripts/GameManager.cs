@@ -276,8 +276,11 @@ public class GameManager : MonoBehaviour
 
         // 이동을 나타내는 벡터
         var castDir = to - from;
+        Debug.Assert(castDir != Vector3.zero);
+
         // 이동하는 거리
         var distance = castDir.magnitude;
+        Debug.Log("Distance: " + distance);
 
         var last = grid.LocalToCell(from);
 
@@ -291,9 +294,17 @@ public class GameManager : MonoBehaviour
             last
         };
 
+        List<Vector3Int> dejavu = new List<Vector3Int>();
+
         while (hit.collider != null)
         {
             var curCell = grid.WorldToCell(hit.collider.transform.position);
+            if (dejavu.Contains(curCell))
+            {
+                throw new Exception("Dejavu: " + string.Join(", ", dejavu));
+            }
+
+            dejavu.Add(curCell);
 
             var ball = hit.collider.GetComponent<Ball>();
             if (ball == null && hit.collider.GetComponent<Cell>() == null)
@@ -313,8 +324,10 @@ public class GameManager : MonoBehaviour
                 }
             }
 
-            Debug.Log("Cell: " + curCell);
+            Debug.Assert(ball != null);
+            Debug.Log("Cell: " + curCell + ", " + ball.GetComponent<MeshRenderer>().material.color);
             ballsToMove.Insert(0, curCell);
+
 
             var isBlack = ball.GetComponent<MeshRenderer>().material.color == Color.black;
             var isMyBall = isBlack == isBlackTurn;
@@ -322,6 +335,7 @@ public class GameManager : MonoBehaviour
 
             if (isMyBall)
             {
+                Debug.Log("my ball: " + curCell);
                 myBallCount++;
             }
 
@@ -461,6 +475,8 @@ public class GameManager : MonoBehaviour
 
     private void OnMouseDown()
     {
+        Debug.Log("OnMouseDown()");
+
         dragScreenPoint = Camera.main.WorldToScreenPoint(transform.position);
         var point = Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, dragScreenPoint.z));
 
@@ -475,7 +491,7 @@ public class GameManager : MonoBehaviour
             }
             catch
             {
-                // Debug.Log("Error: " + e);
+                //Debug.Log("Error: " + e);
             }
         }
         if (ball == null) return;
