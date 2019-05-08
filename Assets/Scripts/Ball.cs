@@ -4,17 +4,8 @@ using UnityEngine;
 
 public class Ball : MonoBehaviour
 {
-    GameManager game1;
-    // Start is called before the first frame update
-    void Start()
+    public bool IsBlack()
     {
-
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-
+        return GetComponent<MeshRenderer>().material.color == Color.black;
     }
 }
-W

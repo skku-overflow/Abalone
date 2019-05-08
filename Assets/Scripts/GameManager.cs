@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -141,6 +142,7 @@ public class GameManager : MonoBehaviour
         var cell = Instantiate<Cell>(cellPrefab);
         cell.transform.SetParent(grid.transform);
         var loc = grid.CellToLocal(pos);
+        loc.z = 1;
         cell.transform.localPosition = loc;
     }
 
@@ -167,7 +169,7 @@ public class GameManager : MonoBehaviour
 
     void OnGUI()
     {
-        GUI.Label(new Rect(10, 0, 100, 40), (isBlackTurn ? "검은" : "흰") +"색 차례" );
+        GUI.Label(new Rect(10, 0, 100, 40), (isBlackTurn ? "검은" : "흰") + "색 차례");
 
         GUI.Label(new Rect(10, 20, 100, 40), "남은 이동 횟수: " + leftMove + "회");
         if (GUI.Button(new Rect(10, 60, 100, 40), "턴 종료"))
@@ -189,6 +191,11 @@ public class GameManager : MonoBehaviour
         {
             HandleClick();
         }
+
+        if (Input.GetMouseButtonUp(0))
+        {
+            OnMouseDragEnd();
+        }
     }
 
     /// <summary>
@@ -208,7 +215,8 @@ public class GameManager : MonoBehaviour
 
         // 클릭한 좌표 -> Hex 좌표
         var cell = grid.WorldToCell(hit.transform.position);
-        Debug.Log("선택: " + cell);
+        // Debug.Log("this.clicked: " + clicked);
+        // Debug.Log("cell: " + cell);
 
         // 만약 현재 클릭된 공이 없다면
         if (clicked.z == -1)
@@ -247,19 +255,38 @@ public class GameManager : MonoBehaviour
         if (clicked != cell && distance <= 1.5f)
         {
             // 이동
-            Debug.Log("Move(" + clicked + " -> " + cell + ")");
-            MoveBall(grid.CellToLocal(clicked), grid.CellToLocal(cell));
+            Move(clicked, cell);
         }
 
         clicked = new Vector3Int(0, 0, -1);
     }
 
-    private void MoveBall(Vector3 from, Vector3 to)
+    private void Move(Vector3Int from, Vector3Int to)
     {
+        if (from == to) return;
+        Debug.Log("이동: " + from + " -> " + to);
+        MoveBallInner(grid.CellToLocal(from), grid.CellToLocal(to));
+    }
+
+    private void MoveBallInner(Vector3 from, Vector3 to)
+    {
+        // No-op
+        if (from == to) return;
+
+
+        if (selected != null)
+        {
+            Destroy(selected);
+            selected = null;
+        }
+
         // 이동을 나타내는 벡터
         var castDir = to - from;
+        Debug.Assert(castDir != Vector3.zero);
+
         // 이동하는 거리
         var distance = castDir.magnitude;
+        Debug.Log("Distance: " + distance);
 
         var last = grid.LocalToCell(from);
 
@@ -273,11 +300,17 @@ public class GameManager : MonoBehaviour
             last
         };
 
+
         while (hit.collider != null)
         {
-            var curCell = grid.WorldToCell(hit.collider.transform.position);
+            Debug.Log("Last:" + grid.CellToLocal(last));
+            Debug.Log(" Cur: " + hit.collider.transform.position);
 
-            Debug.Log("Hit: " + curCell);
+
+            var curCell = grid.WorldToCell(hit.collider.transform.position);
+            Debug.Assert(curCell != last, "curCell이 last와 같을 수 없습니다");
+
+
             var ball = hit.collider.GetComponent<Ball>();
             if (ball == null && hit.collider.GetComponent<Cell>() == null)
             {
@@ -296,7 +329,10 @@ public class GameManager : MonoBehaviour
                 }
             }
 
+            Debug.Assert(ball != null);
+            Debug.Log("Cell: " + curCell + ", " + ball.GetComponent<MeshRenderer>().material.color);
             ballsToMove.Insert(0, curCell);
+
 
             var isBlack = ball.GetComponent<MeshRenderer>().material.color == Color.black;
             var isMyBall = isBlack == isBlackTurn;
@@ -304,21 +340,20 @@ public class GameManager : MonoBehaviour
 
             if (isMyBall)
             {
+                Debug.Log("my ball: " + curCell);
                 myBallCount++;
             }
 
             if (myBallCount > leftMove)
             {
-                Debug.Log("ballCount > leftMove");
+                Debug.Log("ballCount(" + myBallCount + ") > leftMove(" + leftMove + ")");
                 // TODO(kdy1): 남은 공 이동 횟수가 충분하지 않다는 에러 메시지 표시 
                 return;
             }
 
 
-
-
             last = curCell;
-            Physics.Raycast(hit.collider.transform.position, castDir, out hit, distance);
+            Physics.Raycast(grid.CellToWorld(curCell) + (castDir / 2), castDir, out hit, distance);
         }
 
         if (ballsToMove.Count >= 6)
@@ -349,13 +384,13 @@ public class GameManager : MonoBehaviour
             if (!moveToValid)
             {
                 var isBlack = ball.GetComponent<MeshRenderer>().material.color == Color.black;
-                
+
                 // 자기 공을 죽이는 방향으로 이동할 수 없습니다. 
                 if (isBlack == isBlackTurn) return;
             }
         }
 
-
+        int i = 0;
         // 공을 이동시킵니다.
         foreach (var curCell in ballsToMove)
         {
@@ -363,7 +398,7 @@ public class GameManager : MonoBehaviour
             var newCell = grid.LocalToCell(newLoc);
             var moveToValid = IsValid(newCell);
 
-            Debug.Log("이동: " + curCell + " -> " + newCell);
+            // Debug.Log("공 이동: " + curCell + " -> " + newCell);
 
             var ball = balls[curCell.x, curCell.y];
             if (moveToValid)
@@ -388,10 +423,12 @@ public class GameManager : MonoBehaviour
 
                 // 죽은 공을 화면에서 제거합니다.
                 Destroy(ball);
+
+                i++;
             }
             balls[curCell.x, curCell.y] = null;
 
-            
+
             if (blackDeadCount >= 6)
             {
                 Debug.Log("흰색이 이겼습니다");
@@ -436,4 +473,79 @@ public class GameManager : MonoBehaviour
         return false;
     }
 
+
+
+    private Vector3Int draggingCell = new Vector3Int(0, 0, -1);
+    private Vector3 dragScreenPoint;
+    private Vector3 dragOffset;
+
+    private void OnMouseDown()
+    {
+        Debug.Log("OnMouseDown()");
+
+        dragScreenPoint = Camera.main.WorldToScreenPoint(transform.position);
+        var point = Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, dragScreenPoint.z));
+
+        var cell = grid.WorldToCell(point);
+        Debug.Log("Cell: " + cell);
+        Ball ball = null;
+        if (cell != null)
+        {
+            try
+            {
+                ball = balls[cell.x, cell.y];
+            }
+            catch
+            {
+                //Debug.Log("Error: " + e);
+            }
+        }
+        if (ball == null) return;
+        dragOffset = ball.transform.position - point;
+        draggingCell = cell;
+    }
+
+    private void OnMouseDrag()
+    {
+        Vector3 curScreenPoint = new Vector3(Input.mousePosition.x, Input.mousePosition.y, dragScreenPoint.z);
+        Vector3 curPosition = Camera.main.ScreenToWorldPoint(curScreenPoint) + dragOffset;
+
+        if (draggingCell == null || draggingCell.z == -1) return;
+
+        var ball = balls[draggingCell.x, draggingCell.y];
+        if (ball != null)
+        {
+            ball.transform.position = curPosition;
+        }
+    }
+
+    private void OnMouseDragEnd()
+    {
+        if (draggingCell == null || draggingCell.z == -1) return;
+        var ball = balls[draggingCell.x, draggingCell.y];
+        if (ball == null) return;
+
+        ball.transform.localPosition = grid.CellToLocal(draggingCell);
+
+
+        try
+        {
+
+            Vector3 curPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition) + dragOffset;
+            var curCell = grid.WorldToCell(curPosition);
+
+            var origPosition = grid.CellToWorld(draggingCell);
+            var dist = Vector3Int.Distance(curCell, draggingCell);
+            if (dist < 1.5f)
+            {
+                Move(draggingCell, curCell);
+                // clicked = new Vector3Int(0, 0, -1);
+            }
+
+        }
+        finally
+        {
+            draggingCell = new Vector3Int(0, 0, -1);
+        }
+    }
 }
