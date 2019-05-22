@@ -15,6 +15,7 @@ public class MultiPlayerGame : MonoBehaviour
     {
         FirebaseApp.DefaultInstance.SetEditorDatabaseUrl("https://comit-abalone.firebaseio.com/");
         auth = FirebaseAuth.DefaultInstance;
+
     }
 
     // Update is called once per frame
