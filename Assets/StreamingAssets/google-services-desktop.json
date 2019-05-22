@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "612748781414",
+    "firebase_url": "https://comit-abalone.firebaseio.com",
+    "project_id": "comit-abalone",
+    "storage_bucket": "comit-abalone.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:612748781414:android:940b31b934b8fd6c",
+        "android_client_info": {
+          "package_name": "io.github.skkucomit.abalone"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "612748781414-kcm5ul7a71qmk2rqn9r12ackk5beeoh9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAe1sUdaqklPNtOpcYS_d66I5GZxymmTCs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "612748781414-kcm5ul7a71qmk2rqn9r12ackk5beeoh9.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "612748781414-9rk3cltlc6msoqol4avnh1h1s0v4v8oh.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "io.github.skkucomit.abalone"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
