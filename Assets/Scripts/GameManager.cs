@@ -359,7 +359,7 @@ public class GameManager : MonoBehaviour
             return;
         }
 
-        if (ballsToMove.Count > myBallCount * 2)
+        if (ballsToMove.Count >= myBallCount * 2)
         {
             // 이동 불가능
             Debug.Log(myBallCount + "개의 공으로 " + (ballsToMove.Count - myBallCount) + "개의 공을 밀 수 없습니다");
