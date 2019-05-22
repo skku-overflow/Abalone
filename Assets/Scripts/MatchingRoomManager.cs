@@ -36,9 +36,34 @@ public class MatchingRoomManager : MonoBehaviour
         }
 
         var uid = auth.CurrentUser.UserId;
-        rooms = db.GetReference("/matchings");
+        var current = db.GetReference("/matchings").Child("current");
 
-        await rooms.Child(uid).SetValueAsync(true);
-        Debug.Log(rooms);
+        //await rooms.RunTransaction((tr) =>
+        //{
+        //    var v = tr.Value;
+        //    if (v == null)
+        //    {
+        //        tr.Value = uid;
+        //    }
+        //    else
+        //    {
+        //        tr.Value = null;
+        //    }
+
+        //    return TransactionResult.Success(tr.Value)
+
+        //});
+
+        var enemyId = await current.GetValueAsync();
+
+        if (enemyId == null)
+        {
+            await rooms.SetValueAsync(uid);
+        }
+        else
+        {
+            // TODO:
+            SceneManager.LoadScene("SampleScene", LoadSceneMode.Single);
+        }
     }
 }
