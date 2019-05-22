@@ -41,6 +41,6 @@ public class Login : MonoBehaviour
         }
 
 
-        SceneManager.LoadScene("SampleScene", LoadSceneMode.Additive);
+        SceneManager.LoadScene("SampleScene", LoadSceneMode.Single);
     }
 }
