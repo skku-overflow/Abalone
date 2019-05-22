@@ -35,6 +35,10 @@ public class Login : MonoBehaviour
         }
         catch (Exception e)
         {
+            if (e.Message.StartsWith("The password is", StringComparison.Ordinal))
+            {
+                return;
+            }
             Debug.LogError(e);
             var user = await FirebaseAuth.DefaultInstance.CreateUserWithEmailAndPasswordAsync(email.text, password.text);
 

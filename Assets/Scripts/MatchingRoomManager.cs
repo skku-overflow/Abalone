@@ -5,6 +5,7 @@ using Firebase.Auth;
 using Firebase.Database;
 using Firebase.Unity.Editor;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class MatchingRoomManager : MonoBehaviour
 {
@@ -17,14 +18,27 @@ public class MatchingRoomManager : MonoBehaviour
         FirebaseApp.DefaultInstance.SetEditorDatabaseUrl("https://comit-abalone.firebaseio.com/");
         auth = FirebaseAuth.DefaultInstance;
         db = FirebaseDatabase.DefaultInstance;
+        Try();
 
-        rooms = db.GetReference("/matchings");
-
-        Debug.Log(rooms);
     }
 
     void Update()
     {
 
+    }
+
+    private async void Try()
+    {
+        if (auth.CurrentUser == null)
+        {
+            SceneManager.LoadScene("Login", LoadSceneMode.Single);
+            return;
+        }
+
+        var uid = auth.CurrentUser.UserId;
+        rooms = db.GetReference("/matchings");
+
+        await rooms.Child(uid).SetValueAsync(true);
+        Debug.Log(rooms);
     }
 }
